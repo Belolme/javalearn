@@ -7,11 +7,11 @@
  */
 public class InitClass {
 
-    private static void m1(){
+    private static void m1() {
         System.out.println("static method 1 init");
     }
 
-    private void m2(){
+    private void m2() {
         System.out.println("method 2 init");
     }
 
@@ -23,7 +23,7 @@ public class InitClass {
         System.out.println("code block init");
     }
 
-    InitClass(){
+    InitClass() {
         System.out.println("construct init");
     }
 
