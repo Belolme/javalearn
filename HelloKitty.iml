@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/JavaIO" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/RxJavaTest" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/JavaBasic" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Algorithm" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
