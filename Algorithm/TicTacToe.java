@@ -1,6 +1,7 @@
 import fj.*;
 import fj.data.Array;
 import fj.data.List;
+import fj.data.Set;
 
 import java.util.Random;
 import java.util.Scanner;
@@ -17,6 +18,8 @@ public class TicTacToe {
         int col;
 
         ChessBoard chessBoard = new ChessBoard(ChessUnit.X);
+
+        System.out.println("请输入两个数字，第一个代表行数，第二个代表列数（0 为起始数字，例如：0 0）");
 
         for (int i = 0; i < 5; i++) {
             Scanner scanner = new Scanner(System.in);
@@ -75,19 +78,19 @@ class ChessBoard {
             = row -> col -> ox -> chessBoard -> {
 
 //        System.out.println("row=" + row + " " + "col=" + col); //Debug
-        if (ox == mComputerChess) {
+        if (ox == ChessUnit.X) {
             for (int i = 0; i < CHESSBOARD_WIDTH; i++) {
-                chessBoard.getChessBoard()[row][i].setmRowWeight(chessBoard.getChessBoard()[row][i].getmRowWeight() - 1);
-                chessBoard.getChessBoard()[i][col].setmColumnWeight(chessBoard.getChessBoard()[i][col].getmColumnWeight() - 1);
-                chessBoard.getChessBoard()[row][i].setoRowWeight(Integer.MAX_VALUE);
-                chessBoard.getChessBoard()[i][col].setoColumnWeight(Integer.MAX_VALUE);
+                chessBoard.getChessBoard()[row][i].setXRowWeight(chessBoard.getChessBoard()[row][i].getXRowWeight() - 1);
+                chessBoard.getChessBoard()[i][col].setXColumnWeight(chessBoard.getChessBoard()[i][col].getXColumnWeight() - 1);
+                chessBoard.getChessBoard()[row][i].setORowWeight(Integer.MAX_VALUE);
+                chessBoard.getChessBoard()[i][col].setOColumnWeight(Integer.MAX_VALUE);
             }
         } else {
             for (int i = 0; i < CHESSBOARD_WIDTH; i++) {
-                chessBoard.getChessBoard()[row][i].setmRowWeight(Integer.MAX_VALUE);
-                chessBoard.getChessBoard()[i][col].setmColumnWeight(Integer.MAX_VALUE);
-                chessBoard.getChessBoard()[row][i].setoRowWeight(chessBoard.getChessBoard()[row][i].getoRowWeight() - 1);
-                chessBoard.getChessBoard()[i][col].setoColumnWeight(chessBoard.getChessBoard()[i][col].getoColumnWeight() - 1);
+                chessBoard.getChessBoard()[row][i].setXRowWeight(Integer.MAX_VALUE);
+                chessBoard.getChessBoard()[i][col].setXColumnWeight(Integer.MAX_VALUE);
+                chessBoard.getChessBoard()[row][i].setORowWeight(chessBoard.getChessBoard()[row][i].getORowWeight() - 1);
+                chessBoard.getChessBoard()[i][col].setOColumnWeight(chessBoard.getChessBoard()[i][col].getOColumnWeight() - 1);
             }
         }
 //        printChessUnitWeight(new Position(0, 1));//Debug
@@ -109,24 +112,24 @@ class ChessBoard {
     private F<Position, Position> mRightToLeft2
             = position -> new Position(position.getRow() + 1, position.getCol() - 1);
 
-    private F3<Position, F<Position, Position>, F<Position, Position>, Array<Position>> mGetOrderLineArray
+    private F3<Position, F<Position, Position>, F<Position, Position>, Array<Position>> mGetCornerLineArray
             = (position, leftArrayF, rightArrayF) -> {
         List<Position> leftList = List.nil();
         List<Position> rightList = List.nil();
 
         Position newPosition;
         newPosition = leftArrayF.f(position);
-        for (int i = 0; i < CHESSBOARD_WIDTH; i++) {
+        for (int i = 0; i < CHESSBOARD_WIDTH - 1; i++) {
             leftList = leftList.conss(newPosition);
             newPosition = leftArrayF.f(newPosition);
         }
         newPosition = rightArrayF.f(position);
-        for (int i = 0; i < CHESSBOARD_WIDTH; i++) {
+        for (int i = 0; i < CHESSBOARD_WIDTH - 1; i++) {
             rightList = rightList.conss(newPosition);
             newPosition = rightArrayF.f(newPosition);
         }
 
-        return leftList.append(rightList).filter(pos -> !mIsOutOfRange.f(pos)).toArray();
+        return leftList.append(rightList).cons(position).filter(pos -> !mIsOutOfRange.f(pos)).toArray();
     };
 
     private F<Integer, F<Integer, F<Character, F<ChessBoard, ChessBoard>>>> mCornerLineUpdate
@@ -135,42 +138,38 @@ class ChessBoard {
         Position pos = new Position(row, col);
 //        System.out.println(pos); //Debug
 
-        if (ox == mComputerChess) {
-            mGetOrderLineArray.f(pos, mLeftToRight1, mLeftToRight2)
-//                    .map(position -> {
-//                        System.out.println(position + " Hi");
-//                        return position;
-//                    })//Debug
+        if (ox == ChessUnit.X) {
+            mGetCornerLineArray.f(pos, mLeftToRight1, mLeftToRight2)
                     .foreach(position -> {
                         ChessUnit cu = chessBoard.getChessBoard()[position.getRow()][position.getCol()];
-                        cu.setmLeftCornerToRightWeight(cu.getmLeftCornerToRightWeight() - 1);
-                        cu.setoLeftCornerToRightWeight(Integer.MAX_VALUE);
+                        cu.setXLeftCornerToRightWeight(cu.getXLeftCornerToRightWeight() - 1);
+                        cu.setOLeftCornerToRightWeight(Integer.MAX_VALUE);
                         return Unit.unit();
                     });
-            mGetOrderLineArray.f(pos, mRightToLeft1, mRightToLeft2)
+            mGetCornerLineArray.f(pos, mRightToLeft1, mRightToLeft2)
                     .foreach(position -> {
                         ChessUnit cu = chessBoard.getChessBoard()[position.getRow()][position.getCol()];
-                        cu.setmRightCornerToLeftWeight(cu.getmRightCornerToLeftWeight() - 1);
-                        cu.setoRightCornerToLeftWeight(Integer.MAX_VALUE);
+                        cu.setXRightCornerToLeftWeight(cu.getXRightCornerToLeftWeight() - 1);
+                        cu.setORightCornerToLeftWeight(Integer.MAX_VALUE);
                         return Unit.unit();
                     });
         } else {
-            mGetOrderLineArray.f(pos, mLeftToRight1, mLeftToRight2)
+            mGetCornerLineArray.f(pos, mLeftToRight1, mLeftToRight2)
 //                    .map(position -> {
 //                        System.out.println(position + " Hello");
 //                        return position;
 //                    })//Debug
                     .foreach(position -> {
                         ChessUnit cu = chessBoard.getChessBoard()[position.getRow()][position.getCol()];
-                        cu.setmLeftCornerToRightWeight(Integer.MAX_VALUE);
-                        cu.setoLeftCornerToRightWeight(cu.getoLeftCornerToRightWeight() - 1);
+                        cu.setXLeftCornerToRightWeight(Integer.MAX_VALUE);
+                        cu.setOLeftCornerToRightWeight(cu.getOLeftCornerToRightWeight() - 1);
                         return Unit.unit();
                     });
-            mGetOrderLineArray.f(pos, mRightToLeft1, mRightToLeft2)
+            mGetCornerLineArray.f(pos, mRightToLeft1, mRightToLeft2)
                     .foreach(position -> {
                         ChessUnit cu = chessBoard.getChessBoard()[position.getRow()][position.getCol()];
-                        cu.setmRightCornerToLeftWeight(Integer.MAX_VALUE);
-                        cu.setoRightCornerToLeftWeight(cu.getoRightCornerToLeftWeight() - 1);
+                        cu.setXRightCornerToLeftWeight(Integer.MAX_VALUE);
+                        cu.setORightCornerToLeftWeight(cu.getORightCornerToLeftWeight() - 1);
                         return Unit.unit();
                     });
         }
@@ -213,19 +212,53 @@ class ChessBoard {
 
     private F<ChessUnit, F<Integer, F<Character, Boolean>>> mIsWeight
             = chessUnit -> weight -> ox -> {
-        if (ox == mComputerChess)
-            return chessUnit.getmRowWeight() == weight || chessUnit.getmColumnWeight() == weight || chessUnit.getmLeftCornerToRightWeight() == weight || chessUnit.getmRightCornerToLeftWeight() == weight;
+        if (ox == ChessUnit.X)
+            return chessUnit.getXRowWeight() == weight || chessUnit.getXColumnWeight() == weight || chessUnit.getXLeftCornerToRightWeight() == weight || chessUnit.getXRightCornerToLeftWeight() == weight;
         else
-            return chessUnit.getoRowWeight() == weight || chessUnit.getoColumnWeight() == weight || chessUnit.getoLeftCornerToRightWeight() == weight || chessUnit.getoRightCornerToLeftWeight() == weight;
+            return chessUnit.getORowWeight() == weight || chessUnit.getOColumnWeight() == weight || chessUnit.getOLeftCornerToRightWeight() == weight || chessUnit.getORightCornerToLeftWeight() == weight;
     };
 
-    private F<ChessUnit, Boolean> mIsThreat
-            = chessUnit -> mIsWeight.f(chessUnit).f(1).f(mOppositeChess) || getWeightSequence(
-            List.arrayList(chessUnit.getoRowWeight(),
-                    chessUnit.getoColumnWeight(),
-                    chessUnit.getoLeftCornerToRightWeight(),
-                    chessUnit.getoRightCornerToLeftWeight()))
-            .map(p -> p._1() <= 2 && p._1().equals(p._2())).exists(aBoolean -> aBoolean);
+    private F4<Integer, Integer, Integer, Integer, Boolean> mIsWeight2Threat
+            = (row, col, leftToRight, rightToLeft) ->
+            getWeightSequence(List.arrayList(row, col, leftToRight, rightToLeft))
+                    .map(p -> p._1() <= 2 && p._1().equals(p._2()))
+                    .exists(aBoolean -> aBoolean);
+
+    private F<ChessUnit, F<Character, Boolean>> mIsThreat
+            = chessUnit -> ox ->
+            ox == ChessUnit.X
+                    ? mIsWeight2Threat.f(chessUnit.getXRowWeight(),
+                    chessUnit.getXColumnWeight(),
+                    chessUnit.getXLeftCornerToRightWeight(),
+                    chessUnit.getXRightCornerToLeftWeight())
+                    : mIsWeight2Threat.f(chessUnit.getORowWeight(),
+                    chessUnit.getOColumnWeight(),
+                    chessUnit.getOLeftCornerToRightWeight(),
+                    chessUnit.getORightCornerToLeftWeight());
+
+    private boolean isFill(Position position) {
+        return getChess(position) != ChessUnit.NONE;
+    }
+
+    private char getChess(Position position) {
+        return getChessBoard()[position.getRow()][position.getCol()].getUNIT();
+    }
+
+    private F<ChessBoard, Integer> mGetChessUnitNumber
+            = chessBoard -> mGetChessBoardPosition.f(chessBoard).filter(this::isFill).length();
+
+    private F<ChessBoard, Boolean> mIsCornerX
+            = chessBoard -> mGetChessUnitNumber.f(chessBoard) == 3
+            && mComputerChess == ChessUnit.O
+            && getChess(new Position(1, 1)) == mComputerChess
+            &&(mGetChessBoardPosition
+            .f(chessBoard)
+            .filter(this::isFill)
+            .forall(position -> mGetCornerLineArray.f(new Position(1, 1), mLeftToRight1, mLeftToRight2).exists(position::equals))
+            || mGetChessBoardPosition
+            .f(chessBoard)
+            .filter(this::isFill)
+            .forall(position -> mGetCornerLineArray.f(new Position(1, 1), mRightToLeft1, mRightToLeft2).exists(position::equals)));
 
     /**
      * if haven't position will return (-1, -1)
@@ -237,7 +270,7 @@ class ChessBoard {
 //                .append(Array.array(new Position(2,0), new Position(0, 2)));
 
         Array<Position> threatList = mGetChessBoardPosition.f(chessBoard)
-                .filter(position -> mIsThreat.f(chessBoard.getChessBoard()[position.getRow()][position.getCol()]));
+                .filter(position -> mIsThreat.f(chessBoard.getChessBoard()[position.getRow()][position.getCol()]).f(mOppositeChess));
 
         Array<Position> oWeight1List = mGetChessBoardPosition.f(chessBoard)
                 .filter(position -> mIsWeight.f(chessBoard.getChessBoard()[position.getRow()][position.getCol()]).f(1).f(mOppositeChess));
@@ -251,27 +284,43 @@ class ChessBoard {
         Array<Position> weight3List = mGetChessBoardPosition.f(chessBoard)
                 .filter(position -> mIsWeight.f(chessBoard.getChessBoard()[position.getRow()][position.getCol()]).f(3).f(mComputerChess));
 
+        Array<Position> blankList = mGetChessBoardPosition.f(chessBoard)
+                .filter(p -> !isFill(p));
+
         Random random = new Random(System.currentTimeMillis());
 
-        if (mWeight1List.isNotEmpty()){
-          return mWeight1List.get(0);
-        } else if (oWeight1List.isNotEmpty()){
+        if (mGetChessUnitNumber.f(chessBoard) == 1) {
+            return mGetChessBoardPosition.f(chessBoard)
+                    .filter(position -> position.getCol() != 1 && position.getRow() != 1)
+                    .append(Array.array(new Position(1, 1)))
+                    .filter(position -> !isFill(position))
+                    .reverse()
+                    .get(0);
+        } else if (mIsCornerX.f(chessBoard)) {
+            return new Position(1, 0);
+        } else if (mWeight1List.isNotEmpty()) {
+            return mWeight1List.get(0);
+        } else if (oWeight1List.isNotEmpty()) {
             return oWeight1List.get(0);
         } else if (threatList.isNotEmpty()) {
-//            System.out.println(threatList + " Threat position");//Debug
+            System.out.println(threatList + " Threat position");//Debug
             return threatList.get(random.nextInt(threatList.length()));
         } else if (weight2List.isNotEmpty()) {
-//            System.out.println(weight2List.get(0).toString() + "weight2" + weight2List.length());//Debug
+//            System.out.println(weight2List + "weight2 " + weight2List.length());//Debug
             return weight2List.get(random.nextInt(weight2List.length()));
         } else if (weight3List.isNotEmpty()) {
             return weight3List.get(random.nextInt(weight3List.length()));
-        } else
+        } else if (blankList.isNotEmpty())
+            return blankList.get(random.nextInt(blankList.length()));
+        else
             return new Position(-1, -1);
     };
 
     /**
      * 写到这里的时候，我发现一开始就设计错误了，那个获取权值的方法应该只是获取对应o或x的方法，而不是自己和对方
      * 不过算了，到时候再大改一下
+     * <p>
+     * 2016.6.19 加了一个棋谱和重新构建了代码，使得代码更加容易理解和使用
      */
 //    private F<ChessBoard, Position> mGetOppositePosition
 //            = chessBoard -> {
@@ -291,19 +340,19 @@ class ChessBoard {
             }
         }
 
-        mGetChessBoardPosition.f(this).filter(position -> mGetOrderLineArray.f(position, mLeftToRight1, mLeftToRight2).length() < 2)
+        mGetChessBoardPosition.f(this).filter(position -> mGetCornerLineArray.f(position, mLeftToRight1, mLeftToRight2).length() < 2)
                 .foreach(position -> {
                     ChessUnit cu = mChessBoard[position.getRow()][position.getCol()];
-                    cu.setmLeftCornerToRightWeight(Integer.MAX_VALUE);
-                    cu.setoLeftCornerToRightWeight(Integer.MAX_VALUE);
+                    cu.setXLeftCornerToRightWeight(Integer.MAX_VALUE);
+                    cu.setOLeftCornerToRightWeight(Integer.MAX_VALUE);
                     return Unit.unit();
                 });
 
-        mGetChessBoardPosition.f(this).filter(position -> mGetOrderLineArray.f(position, mRightToLeft1, mRightToLeft2).length() < 2)
+        mGetChessBoardPosition.f(this).filter(position -> mGetCornerLineArray.f(position, mRightToLeft1, mRightToLeft2).length() < 2)
                 .foreach(position -> {
                     ChessUnit cu = mChessBoard[position.getRow()][position.getCol()];
-                    cu.setmRightCornerToLeftWeight(Integer.MAX_VALUE);
-                    cu.setoRightCornerToLeftWeight(Integer.MAX_VALUE);
+                    cu.setXRightCornerToLeftWeight(Integer.MAX_VALUE);
+                    cu.setORightCornerToLeftWeight(Integer.MAX_VALUE);
                     return Unit.unit();
                 });
     }
@@ -323,6 +372,7 @@ class ChessBoard {
 
         mOppositeChess = ox;
     }
+
 
     public ChessBoard setChess(Position position) {
         ChessBoard chessBoard = mAddChess.f(position.getRow()).f(position.getCol()).f(mOppositeChess).f(this);
@@ -372,14 +422,14 @@ class ChessBoard {
      */
     public void printChessUnitWeight(ChessUnit chessUnit) {
         System.out.println(String.format("%d %d %d %d | %d %d %d %d %c",
-                chessUnit.getmRowWeight(),
-                chessUnit.getmColumnWeight(),
-                chessUnit.getmLeftCornerToRightWeight(),
-                chessUnit.getmRightCornerToLeftWeight(),
-                chessUnit.getoRowWeight(),
-                chessUnit.getoColumnWeight(),
-                chessUnit.getoLeftCornerToRightWeight(),
-                chessUnit.getoRightCornerToLeftWeight(),
+                chessUnit.getXRowWeight(),
+                chessUnit.getXColumnWeight(),
+                chessUnit.getXLeftCornerToRightWeight(),
+                chessUnit.getXRightCornerToLeftWeight(),
+                chessUnit.getORowWeight(),
+                chessUnit.getOColumnWeight(),
+                chessUnit.getOLeftCornerToRightWeight(),
+                chessUnit.getORightCornerToLeftWeight(),
                 chessUnit.getUNIT()));
     }
 }
@@ -412,6 +462,16 @@ class Position {
     private int col;
     private int row;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Position position = (Position) o;
+
+        return col == position.col && row == position.row;
+    }
+
     Position(int row, int col) {
         setRow(row);
         setCol(col);
@@ -420,42 +480,53 @@ class Position {
 
 class ChessUnit {
 
-    public static final char O = 'o';
-    public static final char X = 'x';
+    static final char O = 'o';
+    static final char X = 'x';
+    static final char NONE = '_';
 
-    private char UNIT = '_';
+    private char UNIT;
 
-    private int mRowThreatWeight;
-    private int mColumnThreatWeight;
-    private int mRightCornerToLeftThreatWeight;
-    private int mLeftCornerToRightThreatWeight;
+    private int XRowThreatWeight;
+    private int XColumnThreatWeight;
+    private int XRightCornerToLeftThreatWeight;
+    private int XLeftCornerToRightThreatWeight;
 
-    private int mRowWeight;
-    private int mColumnWeight;
-    private int mRightCornerToLeftWeight;
-    private int mLeftCornerToRightWeight;
+    private int ORowThreatWeight;
+    private int OColumnThreatWeight;
+    private int ORightCornerToLeftThreatWeight;
+    private int OLeftCornerToRightThreatWeight;
 
-    private int oRowWeight;
-    private int oColumnWeight;
-    private int oRightCornerToLeftWeight;
-    private int oLeftCornerToRightWeight;
+    private int XRowWeight;
+    private int XColumnWeight;
+    private int XRightCornerToLeftWeight;
+    private int XLeftCornerToRightWeight;
+
+    private int ORowWeight;
+    private int OColumnWeight;
+    private int ORightCornerToLeftWeight;
+    private int OLeftCornerToRightWeight;
+
+    @Override
+    public String toString() {
+        return UNIT + " ";
+    }
 
     public ChessUnit(int weight) {
-        setmColumnWeight(weight);
-        setmRowWeight(weight);
-        setmLeftCornerToRightWeight(weight);
-        setmRightCornerToLeftWeight(weight);
-        setoColumnWeight(weight);
-        setoRowWeight(weight);
-        setoLeftCornerToRightWeight(weight);
-        setoRightCornerToLeftWeight(weight);
+        setXColumnWeight(weight);
+        setXRowWeight(weight);
+        setXLeftCornerToRightWeight(weight);
+        setXRightCornerToLeftWeight(weight);
+        setOColumnWeight(weight);
+        setORowWeight(weight);
+        setOLeftCornerToRightWeight(weight);
+        setORightCornerToLeftWeight(weight);
 
-        setmRowThreatWeight(weight);
-        setmColumnThreatWeight(weight);
-        setmLeftCornerToRightThreatWeight(weight);
-        setmRightCornerToLeftThreatWeight(weight);
+        setXRowThreatWeight(weight);
+        setXColumnThreatWeight(weight);
+        setXLeftCornerToRightThreatWeight(weight);
+        setXRightCornerToLeftThreatWeight(weight);
 
-        setUNIT('_');
+        setUNIT(NONE);
     }
 
     public ChessUnit(char ox) {
@@ -463,50 +534,12 @@ class ChessUnit {
         setUNIT(ox);
     }
 
-    @Override
-    public String toString() {
-        return UNIT + " ";
+    public int getXColumnThreatWeight() {
+        return XColumnThreatWeight;
     }
 
-    public int getmRowThreatWeight() {
-        return mRowThreatWeight;
-    }
-
-    public void setmRowThreatWeight(int mRowThreatWeight) {
-        this.mRowThreatWeight = mRowThreatWeight;
-    }
-
-    public int getmColumnThreatWeight() {
-        return mColumnThreatWeight;
-    }
-
-    public void setmColumnThreatWeight(int mColumnThreatWeight) {
-        this.mColumnThreatWeight = mColumnThreatWeight;
-    }
-
-    public int getmRightCornerToLeftThreatWeight() {
-        return mRightCornerToLeftThreatWeight;
-    }
-
-    public void setmRightCornerToLeftThreatWeight(int mRightCornerToLeftThreatWeight) {
-        this.mRightCornerToLeftThreatWeight = mRightCornerToLeftThreatWeight;
-    }
-
-    public int getmLeftCornerToRightThreatWeight() {
-        return mLeftCornerToRightThreatWeight;
-    }
-
-    public void setmLeftCornerToRightThreatWeight(int mLeftCornerToRightThreatWeight) {
-        this.mLeftCornerToRightThreatWeight = mLeftCornerToRightThreatWeight;
-    }
-
-
-    public int getoLeftCornerToRightWeight() {
-        return oLeftCornerToRightWeight;
-    }
-
-    public void setoLeftCornerToRightWeight(int oLeftCornerToRightWeight) {
-        this.oLeftCornerToRightWeight = oLeftCornerToRightWeight;
+    public void setXColumnThreatWeight(int XColumnThreatWeight) {
+        this.XColumnThreatWeight = XColumnThreatWeight;
     }
 
     public char getUNIT() {
@@ -517,61 +550,92 @@ class ChessUnit {
         this.UNIT = UNIT;
     }
 
-    public int getmRowWeight() {
-        return mRowWeight;
+    public int getXRowThreatWeight() {
+        return XRowThreatWeight;
     }
 
-    public void setmRowWeight(int mRowWeight) {
-        this.mRowWeight = mRowWeight;
+    public void setXRowThreatWeight(int XRowThreatWeight) {
+        this.XRowThreatWeight = XRowThreatWeight;
     }
 
-    public int getmColumnWeight() {
-        return mColumnWeight;
+    public int getXRightCornerToLeftThreatWeight() {
+        return XRightCornerToLeftThreatWeight;
     }
 
-    public void setmColumnWeight(int mColumnWeight) {
-        this.mColumnWeight = mColumnWeight;
+    public void setXRightCornerToLeftThreatWeight(int XRightCornerToLeftThreatWeight) {
+        this.XRightCornerToLeftThreatWeight = XRightCornerToLeftThreatWeight;
     }
 
-    public int getmRightCornerToLeftWeight() {
-        return mRightCornerToLeftWeight;
+    public int getXLeftCornerToRightThreatWeight() {
+        return XLeftCornerToRightThreatWeight;
     }
 
-    public void setmRightCornerToLeftWeight(int mRightCornerToLeftWeight) {
-        this.mRightCornerToLeftWeight = mRightCornerToLeftWeight;
+    public void setXLeftCornerToRightThreatWeight(int XLeftCornerToRightThreatWeight) {
+        this.XLeftCornerToRightThreatWeight = XLeftCornerToRightThreatWeight;
     }
 
-    public int getmLeftCornerToRightWeight() {
-        return mLeftCornerToRightWeight;
+    public int getXRowWeight() {
+        return XRowWeight;
     }
 
-    public void setmLeftCornerToRightWeight(int mLeftCornerToRightWeight) {
-        this.mLeftCornerToRightWeight = mLeftCornerToRightWeight;
+    public void setXRowWeight(int XRowWeight) {
+        this.XRowWeight = XRowWeight;
     }
 
-    public int getoRowWeight() {
-        return oRowWeight;
+    public int getXColumnWeight() {
+        return XColumnWeight;
     }
 
-    public void setoRowWeight(int oRowWeight) {
-        this.oRowWeight = oRowWeight;
+    public void setXColumnWeight(int XColumnWeight) {
+        this.XColumnWeight = XColumnWeight;
     }
 
-    public int getoColumnWeight() {
-        return oColumnWeight;
+    public int getXRightCornerToLeftWeight() {
+        return XRightCornerToLeftWeight;
     }
 
-    public void setoColumnWeight(int oColumnWeight) {
-        this.oColumnWeight = oColumnWeight;
+    public void setXRightCornerToLeftWeight(int XRightCornerToLeftWeight) {
+        this.XRightCornerToLeftWeight = XRightCornerToLeftWeight;
     }
 
-    public int getoRightCornerToLeftWeight() {
-        return oRightCornerToLeftWeight;
+    public int getXLeftCornerToRightWeight() {
+        return XLeftCornerToRightWeight;
     }
 
-    public void setoRightCornerToLeftWeight(int oRightCornerToLeftWeight) {
-        this.oRightCornerToLeftWeight = oRightCornerToLeftWeight;
+    public void setXLeftCornerToRightWeight(int XLeftCornerToRightWeight) {
+        this.XLeftCornerToRightWeight = XLeftCornerToRightWeight;
     }
 
+    public int getORowWeight() {
+        return ORowWeight;
+    }
+
+    public void setORowWeight(int ORowWeight) {
+        this.ORowWeight = ORowWeight;
+    }
+
+    public int getOColumnWeight() {
+        return OColumnWeight;
+    }
+
+    public void setOColumnWeight(int OColumnWeight) {
+        this.OColumnWeight = OColumnWeight;
+    }
+
+    public int getORightCornerToLeftWeight() {
+        return ORightCornerToLeftWeight;
+    }
+
+    public void setORightCornerToLeftWeight(int ORightCornerToLeftWeight) {
+        this.ORightCornerToLeftWeight = ORightCornerToLeftWeight;
+    }
+
+    public int getOLeftCornerToRightWeight() {
+        return OLeftCornerToRightWeight;
+    }
+
+    public void setOLeftCornerToRightWeight(int OLeftCornerToRightWeight) {
+        this.OLeftCornerToRightWeight = OLeftCornerToRightWeight;
+    }
 
 }
