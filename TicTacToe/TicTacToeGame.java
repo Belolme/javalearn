@@ -1,4 +1,3 @@
-import com.sun.org.apache.xpath.internal.operations.Or;
 import fj.*;
 import fj.data.Array;
 import fj.data.List;
@@ -139,13 +138,58 @@ public class TicTacToeGame {
             filter(position -> mIsWeight.f(chessBoard.getChessBoard()[position.getRow()][position.getCol()]).f(weight).f(ChessUnit.O) ||
                     mIsWeight.f(chessBoard.getChessBoard()[position.getRow()][position.getCol()]).f(weight).f(ChessUnit.X));
 
+
     private F<ChessBoard, F<Character, Array<Position>>> mThreatWeightPosition = chessBoard -> ox ->
             mGetChessBoardPosition.f(chessBoard).filter(position -> mIsThreat.f(chessBoard.getChessBoard()[position.getRow()][position.getCol()]).f(ox));
+
+
+    private Array<ChessBoard> getIsomorphismChessBoard(ChessBoard chessBoard) {
+        Array<ChessBoard> chessBoardArray = Array.array(chessBoard);
+
+        for (int i = 0; i < 3; i++) {
+            chessBoard = chessBoard.turnRight();
+            chessBoardArray = chessBoardArray.append(Array.array(chessBoard));
+        }
+        return chessBoardArray;
+    }
+
+
+    private F<ChessBoard, F<ChessBoard, Boolean>> mIsomorphism = chessBoardOrg -> chessBoardDet -> Array.array(chessBoardOrg)
+            .bind(this::getIsomorphismChessBoard)
+            .exists(chessBoard -> chessBoard.equals(chessBoardDet));
+
+
+    private List<ChessBoard> isomorphism(List<ChessBoard> chessBoards) {
+        if (chessBoards.isEmpty() || chessBoards.length() == 1)
+            return chessBoards;
+
+//        for (int i = 0; i < chessBoards.length(); i++) {
+//            for (int j = i + 1; j < chessBoards.length(); j++) {
+//                System.out.println("i_________________________" + i);
+//                chessBoards.foreach(chessBoard -> {
+//                    chessBoard.printChessBoard();
+//                    return Unit.unit();
+//                });
+//                System.out.println("------------------------------" + i);
+//                if (isomorphism.f(chessBoards.get(i)).f(chessBoards.get(j))) {
+//                    System.out.println("Hello j= " + j);
+//
+//                }
+//            }
+//        }
+
+        List<ChessBoard> chessBoardList = isomorphism(chessBoards.tail());
+        if (chessBoardList.exists(chessBoard -> mIsomorphism.f(chessBoard).f(chessBoards.head()))) {
+            return chessBoardList;
+        }
+
+        return chessBoardList.conss(chessBoards.head());
+    }
+
 
     private F<ChessBoard, Array<ChessBoard>> mSon = chessBoard -> {
 
         Array<Position> positions;
-
         F<Array<Position>, Array<ChessBoard>> getChessboard = positions1 -> positions1.map(position -> {
             ChessBoard chessBoard1 = chessBoard.clone();
             chessBoard1.setChess(position, mIsTurn.f(chessBoard));
@@ -157,13 +201,18 @@ public class TicTacToeGame {
             return getChessboard.f(positions);
         }
 
-//        positions = mThreatWeightPosition.f(chessBoard).f(ChessUnit.X).append(mThreatWeightPosition.f(chessBoard).f(ChessUnit.O));
-//        if (positions.length() > 0) {
-//            return getChessboard.f(positions);
-//        }
+        //这个得要再考虑
+        positions = mThreatWeightPosition.f(chessBoard).f(ChessUnit.X).append(mThreatWeightPosition.f(chessBoard).f(ChessUnit.O));
+        if (positions.length() > 0) {
+            return getChessboard.f(positions);
+        }
+
+        positions = mWeightPosition.f(chessBoard).f(2);
+        if (positions.length() > 0)
+            return getChessboard.f(positions);
 
         positions = mGetChessBoardPosition.f(chessBoard).filter(position -> !chessBoard.isFill(position));
-        return getChessboard.f(positions);
+        return isomorphism(getChessboard.f(positions).toList()).toArray();
     };
 
 
@@ -188,28 +237,25 @@ public class TicTacToeGame {
 
 
     private ChessBoard getAIPosition() {
-        return mSon.f(mChessBoard).toList().sort(Ord.ord(chessBoard1 -> chessBoard2 -> {
-//            chessBoard1.updatemResultExecutorValue();
-//            chessBoard2.updatemResultExecutorValue();
-            final int v = chessBoardValues(chessBoard1).compareTo(chessBoardValues(chessBoard2));
-            return v < 0 ? Ordering.LT : v == 0 ? Ordering.EQ : Ordering.GT;
-        })).map(chessBoard -> {
-//            System.out.println();
-            System.out.println(chessBoardValues(chessBoard) + " hello");     //Debug
-//            System.out.println(chessBoard.getmResultExecutor().getmResult());
-//            System.out.println(chessBoard.isFlat());
-            chessBoard.printChessBoard();
-            chessBoard.updatemResultExecutorValue();
-            return chessBoard;
-        }).reverse().head();
+        return mSon.f(mChessBoard).toList().map(chessBoard -> P.p(chessBoard, chessBoardValues(chessBoard)))
+                .sort(Ord.ord(p1 -> p2 -> {
+                    final int v = p1._2().compareTo(p2._2());
+                    return v < 0 ? Ordering.LT : v == 0 ? Ordering.EQ : Ordering.GT;
+                })).map(p -> {
+//                    System.out.println(chessBoardValues(p._1()) + " hello");     //Debug
+//                    p._1().printChessBoard();
+                    return p;
+                }).reverse().head()._1();
     }
 
 
     private ChessBoard mChessBoard;
 
+
     private ChessBoard.ResultExecutor mResultExecutor = new ChessBoard.ResultExecutor() {
         @Override
         public void iWin() {
+            System.out.println();
             System.out.println("You win");
             mChessBoard.printChessBoard();
             resumeGame();
@@ -217,6 +263,7 @@ public class TicTacToeGame {
 
         @Override
         public void flat() {
+            System.out.println();
             System.out.println("The match is flat");
             mChessBoard.printChessBoard();
             resumeGame();
@@ -224,6 +271,7 @@ public class TicTacToeGame {
 
         @Override
         public void iLost() {
+            System.out.println();
             System.out.println("You lost");
             mChessBoard.printChessBoard();
             resumeGame();
@@ -234,11 +282,12 @@ public class TicTacToeGame {
 //                ChessBoard chessBoard1 = chessBoard.clone();
 //                chessBoard1.setChess(new Position(1, 1));
 //                chessBoard1.printChessBoard();
-            System.out.println();
             mChessBoard.printChessBoard();
+            System.out.println();
             run();
         }
     };
+
 
     private Position getPosition() {
         Scanner scanner = new Scanner(System.in);
@@ -247,15 +296,20 @@ public class TicTacToeGame {
         return new Position(row, col);
     }
 
+
     private void run() {
         if (mIsTurn.f(mChessBoard) == mChessBoard.getmOppositeChess()) {
-            mChessBoard.setChess(getPosition(), mChessBoard.getmOppositeChess()).execute();
+            mChessBoard.setChess(getPosition(), mChessBoard.getmOppositeChess()).getmResultExecutor().execute();
         } else {
+//            long start = System.currentTimeMillis();
             mChessBoard = getAIPosition();
-            mChessBoard.setmResultExecutor(mResultExecutor);
+//            long end = System.currentTimeMillis();
+//            System.out.println("Time = " + (end - start)); //Debug
+
             mChessBoard.getmResultExecutor().execute();
         }
     }
+
 
     private void startGame() {
         System.out.println("请输入两个数字，第一个代表行数，第二个代表列数（0 为起始数字，例如：0 0）");
@@ -263,6 +317,7 @@ public class TicTacToeGame {
         mChessBoard.setmResultExecutor(mResultExecutor);
         run();
     }
+
 
     private void resumeGame() {
         System.out.println("Press 'Y' to resume game; Press 'N' to exit");
@@ -282,7 +337,24 @@ public class TicTacToeGame {
 //        ChessBoard chessBoard = new ChessBoard(ChessUnit.X);
 //        chessBoard.setChess(new Position(0, 2), ChessUnit.X);
 //
+//        ticTacToeGame.mIsomorphism(Array.array(chessBoard, chessBoard.turnRight(), chessBoard.turnRight().turnRight()).toList()).foreach(chessBoard1 -> {
+//            chessBoard1.printChessBoard();
+//            return Unit.unit();
+//        });
+
+//        F<ChessBoard, F<ChessBoard, Boolean>> isomorphism = chessBoardOrg -> chessBoardDet -> {
 //
+//            ChessBoard turn = chessBoardOrg;
+//            for (int c = 0; c < 3; c++) {
+//                turn = turn.turnRight();
+//                if (turn.equals(chessBoardDet))
+//                    return true;
+//            }
+//            return false;
+//        };
+//
+//        System.out.println(isomorphism.f(chessBoard).f(chessBoard.turnRight()));
+
 //        System.out.println(ticTacToeGame.chessBoardValues(chessBoard));
 //        chessBoard.printChessBoard();
 //        System.out.println("----------------------------------");
@@ -295,7 +367,5 @@ public class TicTacToeGame {
 //            System.out.println();
 //            return Unit.unit();
 //        });
-
-
     }
 }

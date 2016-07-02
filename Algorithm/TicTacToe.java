@@ -48,11 +48,11 @@ public class TicTacToe {
 //                chessBoard1.setChess(new Position(1, 1));
 //                chessBoard1.printChessBoard();
                 chessBoard.printChessBoard();
-                chessBoard.setChess(getPosition(), chessBoard.getmOppositeChess()).execute();
+                chessBoard.setChess(getPosition(), chessBoard.getmOppositeChess()).getmResultExecutor().execute();
             }
         });
 
-        chessBoard.setChess(getPosition(), chessBoard.getmOppositeChess()).execute();
+        chessBoard.setChess(getPosition(), chessBoard.getmOppositeChess()).getmResultExecutor().execute();
     }
 
     private static void resumeGame() {

@@ -7,8 +7,6 @@ import fj.*;
 import fj.data.Array;
 import fj.data.List;
 
-import java.util.Random;
-
 /**
  * X is first hand
  * O is last hand
@@ -317,7 +315,8 @@ public class ChessBoard implements Cloneable {
         this.mResultExecutor = mResultExecutor;
     }
 
-    ResultExecutor getmResultExecutor(){
+    ResultExecutor getmResultExecutor() {
+        updatemResultExecutorValue();
         return mResultExecutor;
     }
 
@@ -346,7 +345,7 @@ public class ChessBoard implements Cloneable {
         }
     };
 
-    public void updatemResultExecutorValue() {
+    private void updatemResultExecutorValue() {
         if (!isOver())
             mResultExecutor.setmResult(NOT_OVER);
         else if (isWin(mOppositeChess))
@@ -357,7 +356,7 @@ public class ChessBoard implements Cloneable {
             mResultExecutor.setmResult(LOST);
     }
 
-    public ResultExecutor setChess(Position position, char chess) {
+    public ChessBoard setChess(Position position, char chess) {
         ChessBoard chessBoard = mAddChess.f(position.getRow()).f(position.getCol()).f(chess).f(this);
 //        Position pos = mGetMyselfPosition.f(chessBoard);
 //
@@ -365,10 +364,7 @@ public class ChessBoard implements Cloneable {
 ////            System.out.println("position.row=" + pos.getRow() + " position.col=" + pos.getCol()); //Debug
 //            mAddChess.f(pos.getRow()).f(pos.getCol()).f(mComputerChess).f(chessBoard);
 //        }
-
-        updatemResultExecutorValue();
-
-        return mResultExecutor;
+        return this;
     }
 
     public ChessUnit[][] getChessBoard() {
@@ -429,14 +425,47 @@ public class ChessBoard implements Cloneable {
         return chessBoard;
     }
 
+    public ChessBoard turnRight() {
+        ChessBoard chessBoard = clone();
+
+        ChessUnit[][] chessUnits = new ChessUnit[CHESSBOARD_WIDTH][CHESSBOARD_WIDTH];
+        for (int i = 0; i < CHESSBOARD_WIDTH; i++) {
+            for (int j = 0; j < CHESSBOARD_WIDTH; j++) {
+                chessUnits[j][2-i] = chessBoard.mChessBoard[i][j];
+            }
+        }
+
+        chessBoard.mChessBoard = chessUnits;
+        return chessBoard;
+    }
+
     private ChessUnit[][] getmChessBoardCopy() {
         ChessUnit[][] chessUnit = new ChessUnit[CHESSBOARD_WIDTH][CHESSBOARD_WIDTH];
         for (int i = 0; i < CHESSBOARD_WIDTH; i++) {
             for (int j = 0; j < CHESSBOARD_WIDTH; j++) {
                 chessUnit[i][j] = mChessBoard[i][j].clone();
             }
-
         }
         return chessUnit;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ChessBoard that = (ChessBoard) o;
+
+        if (mComputerChess != that.mComputerChess) return false;
+        if (mOppositeChess != that.mOppositeChess) return false;
+        for (int i=0; i<CHESSBOARD_WIDTH; i++){
+            for (int j=0; j<CHESSBOARD_WIDTH; j++){
+                if (mChessBoard[i][j].getUNIT()!=that.mChessBoard[i][j].getUNIT()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
