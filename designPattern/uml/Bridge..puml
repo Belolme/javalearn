@@ -1,0 +1,34 @@
+@startuml
+
+interface Implementor{
+    + operation()
+}
+class ConcreteImplementorA{
+    + operation()
+}
+class ConcreteImplementorB{
+    + operation()
+}
+
+ConcreteImplementorA ..|> Implementor
+ConcreteImplementorB ..|> Implementor
+
+interface Abstraction{
+    - implement: Implementor
+
+    + operation() ~ implement.operation()
+}
+note right
+通过组合实现继承 Implementor
+endnote
+
+class RefindAbstraction{
+    - implement: Implementor
+
+    + operation() ~ implement.operation()
+}
+
+RefindAbstraction ..|> Abstraction
+Abstraction o--> Implementor: -implement
+
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+
+class Singleton{
+    - instance: Singleton=null
+
+    --method--
+    + {static}getInstance(): Singleton
+    # Singleton()
+}
+note left
+如果有多线程, 需要对 getInstance() 加锁
+endnote
+
+'---------------------------split-------------------
+Singleton --> Singleton: -instance
+
+@enduml

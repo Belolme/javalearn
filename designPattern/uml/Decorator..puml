@@ -1,0 +1,35 @@
+@startuml
+
+interface Component{
+    + operation()
+}
+
+class ConcreteComponent{
+    + operation()
+}
+
+abstract class Decorator{
+    - component: Component
+
+    + operation() ~ component.operation();
+}
+
+ConcreteComponent ..|> Component
+Decorator ..|> Component
+Decorator o---> Component
+
+class ConcreteDecorateA{
+    - addState
+
+    + operation()
+}
+
+class ConcreteDecorateB{
+    + operation() ~ {super.operation(); addBehavior();}
+    - addBehavior()
+}
+
+ConcreteDecorateA --|> Decorator
+ConcreteDecorateB --|> Decorator
+
+@enduml

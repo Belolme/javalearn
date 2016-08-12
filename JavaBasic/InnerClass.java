@@ -74,7 +74,7 @@ public class InnerClass {
             }
         }
 
-        public void eat() {
+        private void eat() {
             Lettuce lettuce = new Lettuce();
             Beef beef = new Beef();
             lettuce.eat();

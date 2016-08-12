@@ -1,0 +1,78 @@
+@startuml
+class HttpUrl
+class HttpUrl.Builder
+
+class MediaType{
+    --method--
+    {static}parse(String)
+}
+
+class FormBody
+class FormBody.Builder{
+    --method--
+    add(name: String, value String)
+    build()
+}
+
+class MultipartBody
+note right: use Tree Design Pattern
+class MultipartBody.Builder{
+    --method--
+    type(MultipartBody.Fields)
+    addPart(name: String, RequestBody): The content storied in RequestBody
+}
+
+class OkHttpClient{
+    --method--
+    newCall(Request)
+}
+note top
+OkHttpClient 是基于任务设计模式的
+endnote
+
+class Call{
+    --method--
+    execute()
+    enqueue(Callback): use new Thread to execute it
+}
+
+class Request
+class Request.Builder{
+    --method--
+    url()
+    post(RequestBody): used to post
+    get()
+    build()
+}
+class RequestBody{
+    --method--
+    create(MediaType, xxx)
+}
+
+class Response {
+    --method--
+    body()
+}
+
+'----------spilt--------------
+
+Response <.down. OkHttpClient
+Request <.left. OkHttpClient
+
+Call <-right- OkHttpClient
+
+Request <.right. Request.Builder
+Request.Builder ----down-> RequestBody
+Request.Builder --> HttpUrl
+
+HttpUrl <.. HttpUrl.Builder
+
+FormBody -right-|> RequestBody
+FormBody <.. FormBody.Builder
+
+MultipartBody <.. MultipartBody.Builder
+MultipartBody --|> RequestBody
+
+RequestBody -down-> MediaType
+
+@enduml

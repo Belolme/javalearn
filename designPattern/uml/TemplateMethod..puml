@@ -1,0 +1,18 @@
+@startuml
+
+abstract class AbstractClass{
+    ..abstract method..
+    + {abstract} operation1()
+    + {abstract} operation2()
+    ..concrete method..
+    + templateMethod() ~ { operation1(); operation2(); }
+}
+
+class ConcreteClass
+note right
+用于流程控制
+endnote
+
+ConcreteClass -up-|> AbstractClass
+
+@enduml
