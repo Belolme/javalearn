@@ -1,0 +1,32 @@
+@startuml
+
+interface InvocationHandler{
+    + invoke(Object proxy, Method method, Object[] args) throws Throwable
+}
+
+class DynamicProxy
+
+DynamicProxy ..|> InvocationHandler
+
+interface Subject
+class RealSubject
+
+RealSubject .up.|> Subject
+
+class Proxy{
+    + {static}newProxyInstance(ClassLoader, interfaces: Class[], handler: InvocationHandler): Object
+}
+note right
+最终, proxy通过放射机制传化为被代理的类,
+可以直接执行被代理类的方法
+endnote
+
+Proxy o--> ClassLoader
+Proxy o--> Class
+Proxy o--> InvocationHandler
+
+ClassLoader --> Subject
+Class --> Subject
+
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+
+interface Factory{
+    + createFactory(): Product
+}
+
+interface Product{
+    + operation(): void
+}
+
+class SimpleFactory{
+    - linkProduct1
+    - linkProduct2
+
+    + createFactory(): Product
+}
+
+class Product1{
+    + operation(): void
+}
+
+class Product2{
+    + operation(): void
+}
+
+'------------------split---------------
+SimpleFactory .up.|> Factory
+Product1 .up.|> Product
+Product2 .up.|> Product
+
+SimpleFactory --> Product
+@enduml

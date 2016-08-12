@@ -1,0 +1,24 @@
+@startuml
+
+class Context{
+    + contextInterface()
+}
+
+interface Strategy{
+    + algorithmInterface()
+}
+note right
+实现把不同的策略分离开来
+endnote
+
+class ConcreteStrategyA
+class ConcreteStrategyB
+class ConcreteStrategyC
+
+ConcreteStrategyA ..|> Strategy
+ConcreteStrategyB ..|> Strategy
+ConcreteStrategyC ..|> Strategy
+
+Context o-> Strategy
+
+@enduml

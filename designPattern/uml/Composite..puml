@@ -1,0 +1,24 @@
+@startuml
+
+interface Component{
+    + operation()
+}
+
+class Leaf{
+    + operation()
+}
+
+class Composite{
+    - listChild: List<Component>
+
+    + operation() ~ each operation in children
+    + add(component: Component)
+    + delete(index: int)
+    + getChild(index: int)
+}
+
+Component <|.. Leaf
+Component <|.. Composite
+Composite "1" o---> "*" Component: contains
+
+@enduml

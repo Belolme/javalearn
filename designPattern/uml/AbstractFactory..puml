@@ -1,0 +1,44 @@
+@startuml
+
+interface Factory{
+    + createProduct1()
+    + createProduct2()
+}
+
+class ConcreteFactory1
+class ConcreteFactory2
+
+ConcreteFactory1 .up.|> Factory
+ConcreteFactory2 .up.|> Factory
+
+interface Product1
+interface Product2
+
+class ConcreteProduct1A
+class ConcreteProduct1B
+class ConcreteProduct2A
+class ConcreteProduct2B
+
+ConcreteProduct1A ..|> Product1
+ConcreteProduct1B ..|> Product1
+
+ConcreteProduct2B ..|> Product2
+ConcreteProduct2A ..|> Product2
+
+class Client
+
+'------------------------------
+Client --> Product2
+Client --> Product1
+Client ---> Factory
+
+ConcreteFactory1 ..> ConcreteProduct1A
+ConcreteFactory1 ..> ConcreteProduct1B
+
+ConcreteFactory2 ..> ConcreteProduct2A
+ConcreteFactory2 ..> ConcreteProduct2B
+
+
+
+
+@enduml
