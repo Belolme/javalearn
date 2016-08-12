@@ -1,0 +1,26 @@
+@startuml
+
+interface Subject{
+    + request()
+}
+
+class ConcreteSubject{
+    + request()
+}
+
+class Proxy{
+    - request
+
+    + request() ~ {...; concreteSubject.request(); ...;}
+}
+note left
+在java中, 可以通过动态代理实现对每一个类实现代理.
+如果需要添加新的功能, 可以通过aop方法实现(动态代理类调用aop接口的方法).
+endnote
+
+ConcreteSubject .up.|> Subject
+Proxy .up.|> Subject
+
+Proxy o-> ConcreteSubject
+
+@enduml

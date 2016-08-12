@@ -1,0 +1,14 @@
+@startuml
+
+interface Product
+interface Factory
+
+class ConcreteProduct
+class ConcreteProductFactory
+
+'-------------------
+Product <|.. ConcreteProduct
+Factory <|.. ConcreteProductFactory
+ConcreteProductFactory .> ConcreteProduct
+
+@enduml

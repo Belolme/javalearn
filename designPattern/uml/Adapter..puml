@@ -1,0 +1,26 @@
+@startuml
+
+interface Target{
+    + request()
+}
+
+class Adaptee{
+    + request()
+}
+
+class Adapter{
+    - adaptee: Adaptee
+
+    + request() ~ adaptee.request()
+}
+
+Adapter .up.|> Target
+
+class Client
+
+'---------------------
+
+Client -> Target
+Adapter o-> Adaptee
+
+@enduml
