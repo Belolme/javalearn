@@ -1,4 +1,4 @@
-package effetivejava.methods_commond_to_all_objects;
+package effetivejava.methods_commond;
 
 import java.util.Arrays;
 
@@ -18,7 +18,7 @@ public class CloneTest implements Cloneable {
 
     @Override
     public String toString() {
-        return num + Arrays.toString(arr);
+        return num + " " + Arrays.toString(arr);
     }
 
     @Override
@@ -34,12 +34,27 @@ public class CloneTest implements Cloneable {
         CloneTest clone = (CloneTest) ori.clone();
 
         print(ori, clone);
+        /*
+          return
+          0 [string1, string2, string3]
+          0 [string1, string2, string3]
+         */
 
         ori.arr[0] = new CloneArr("hello");
         print(ori, clone);
+        /*
+        return
+        0 [hello, string2, string3]
+        0 [string1, string2, string3]
+         */
 
         ori.arr[1].s = "hi";
         print(ori, clone);
+        /*
+        return
+        0 [hello, hi, string3]
+        0 [string1, hi, string3]
+         */
 
     }
 
@@ -49,9 +64,10 @@ public class CloneTest implements Cloneable {
     }
 }
 
-class CloneArr implements Cloneable{
+class CloneArr implements Cloneable {
     String s;
-    public CloneArr(String s){
+
+    public CloneArr(String s) {
         this.s = s;
     }
 
