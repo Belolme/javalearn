@@ -40,3 +40,24 @@ Just example:
     text.applyStyles(EnumSet.of(Style.BOLD, Style.ITALIC))
     
 # Use EnumMap instead of ordinal indexing
+
+Example [code](Herb.java).
+
+> 使用 `EnumMap` 可以更好的提升程序的可读性, 安全性(类型安全), 易维护性, 而且在空间和时间上
+所消耗的性能几乎等同与使用 `ordinal` 引导的数组. 
+如果所需要引导的数组是多维的, 则可以使用 `EnumMap<Enum.class, EnumMap<Enum.class, xxx>>` 来引导. 
+
+******************************************************
+
+# Consistently use the _`override`_ annotation
+
+# Use marker interfaces to define types
+
+> 如果想要定义一个任何新方法都不会与之关联的类型, 
+标记接口就是最好的选择. 
+如果想要标记程序元素而非类和接口, 
+考虑到未来可能要给标记添加更多的信息, 
+或者标记要适合与已经广泛使用了注解类型的框架, 
+那么标记注解就是一个正确的选择.
+
+
