@@ -4,7 +4,7 @@
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/demo" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/functionaljavademo" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/JavaExam" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/JavaIO" isTestSource="false" />
@@ -13,6 +13,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Algorithm" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/TicTacToe" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/OkHttpTest" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/designPattern" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
