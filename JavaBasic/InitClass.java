@@ -30,6 +30,18 @@ public class InitClass {
 
     public static void main(String[] args) {
         new InitClass();
+        /*
+        output
+        static code block init
+        code block init
+        construct init
+         */
+
         new InitClass();
+        /*
+        output
+        code block init
+        construct init
+         */
     }
 }
