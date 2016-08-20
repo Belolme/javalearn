@@ -1,3 +1,5 @@
+package mydemo;
+
 import java.util.stream.IntStream;
 
 import fj.Ord;
@@ -22,7 +24,7 @@ public class Max {
 
 		//使用-Xss1G增大栈内存
 		long startTime = System.currentTimeMillis();
-		System.out.println("Max number is: " + max(l));
+		System.out.println("mydemo.Max number is: " + max(l));
 		long endTime = System.currentTimeMillis();
 		//128 10,000,000
 		//266 20,000,000
@@ -41,12 +43,12 @@ public class Max {
 			cache = lNum>cache ? lNum : cache;
 		}
 		endTime = System.currentTimeMillis();
-		System.out.println("Max number is: " + cache);
+		System.out.println("mydemo.Max number is: " + cache);
 		System.out.println("Calculate time is: " + (endTime-startTime));
 		
 		//自己写得递归比库的效率要高10倍
 		startTime = System.currentTimeMillis();
-		System.out.println("Max number is: " + l.maximum(Ord.intOrd));		
+		System.out.println("mydemo.Max number is: " + l.maximum(Ord.intOrd));
 		endTime = System.currentTimeMillis();
 		System.out.println("Calculate time is: " + (endTime-startTime));
 
@@ -57,7 +59,7 @@ public class Max {
 			cache = array[i]>cache ? array[i] : cache;
 		}
 		endTime = System.currentTimeMillis();
-		System.out.println("Max number is: " + cache);
+		System.out.println("mydemo.Max number is: " + cache);
 		System.out.println("Calculate time is: " + (endTime-startTime));
 	}
 }

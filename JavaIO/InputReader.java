@@ -8,7 +8,7 @@ public class InputReader {
 
     private static void readWithDataInputStream(){
         try {
-            DataInputStream in = new DataInputStream(new FileInputStream("./src/Max.java"));
+            DataInputStream in = new DataInputStream(new FileInputStream("./src/mydemo.Max.java"));
             int s = in.readChar();
             while (in.available()>=2){
                 System.out.println(s);
@@ -22,7 +22,7 @@ public class InputReader {
 
     private static void readWithBufferedRead(){
         try {
-            BufferedReader in = new BufferedReader(new FileReader("./src/Max.java"));
+            BufferedReader in = new BufferedReader(new FileReader("./src/mydemo.Max.java"));
             String s = in.readLine();
             while (s!=null){
                 System.out.println(s);
