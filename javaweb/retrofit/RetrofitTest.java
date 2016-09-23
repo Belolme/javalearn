@@ -28,7 +28,7 @@ public class RetrofitTest {
         CotogoServer cotogoServer = RetrofitClient.createService(CotogoServer.class);
         Call<String> userRegisted = cotogoServer.getUser(44);
         String json = userRegisted.execute().body();
-        System.out.println(JsonResolver.resolve(json));
+        System.out.println(JsonResolver.resolve(json, User.class));
 
     }
 

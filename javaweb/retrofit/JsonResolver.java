@@ -1,6 +1,8 @@
 package retrofit;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -12,12 +14,16 @@ import java.lang.reflect.Type;
  */
 public class JsonResolver {
 
-    public static <D> ReturnObject<D> resolve(String json) {
+    public static <D> ReturnObject<D> resolve(String json, Class<D> clazz) {
 
-        Type type = new TypeToken<ReturnObject<D>>() {
-        }.getType();
-        return new Gson().fromJson(json, type);
+        Gson gson = new Gson();
+        Type type = new TypeToken<ReturnObject<D>>() {}.getType();
+        ReturnObject<D> returnObject = gson.fromJson(json, type);
 
+        JsonObject data = new JsonParser().parse(json).getAsJsonObject().getAsJsonObject("data");
+        returnObject.setData(gson.fromJson(data, clazz));
+
+        return returnObject;
     }
 
 }

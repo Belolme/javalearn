@@ -35,11 +35,11 @@ public class ReturnObject<D> {
         this.message = message;
     }
 
-    public Object getObjectata() {
+    public D getData() {
         return data;
     }
 
-    public void setObjectata(D data) {
+    public void setData(D data) {
         this.data = data;
     }
 
