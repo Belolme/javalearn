@@ -61,6 +61,7 @@
       <sourceFolder url="file://$MODULE_DIR$/reflect" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/javaweb" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/jvm" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
